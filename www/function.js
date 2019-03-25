@@ -1,1 +1,589 @@
-var versi="3",url="https://mutiaraonlineshop.com/app/",url_admin="https://mutiaraonlineshop.com/",api_ongkir="https://ongkir.tokojs.com/api_ongkir/",token="6KB4J3xGZX",nama_aplikasi="Mutiara Online Shop",id_pelanggan=localStorage.getItem("id_pelanggan"),ua=navigator.userAgent.toLowerCase(),isAndroid=-1<ua.indexOf("android");function suntikCSS(){var a=document.createElement("style");a.innerHTML=".menu ul li{height:180px}",document.head.appendChild(a)}function logout(){1==confirm("Yakin akan keluar dari akun ini?")&&(localStorage.removeItem("id_pelanggan"),localStorage.removeItem("url_id_kategori"),localStorage.removeItem("url_id_produk"),location.reload())}function menu_kiri(){$("#menu_kiri").html(""),$("#menu_kiri").append("<div>"),$("#menu_kiri").append("<h4>Menu Kiri</h4>"),$("#menu_kiri").append("<ul>");var a=localStorage.getItem("id_pelanggan");""!=a&&a?($("#menu_kiri").append('<li style="list-style:none"><a href="#profile"><i class="icon-user"></i>Profile Anda</a></li>'),$("#menu_kiri").append('<li style="list-style:none"><a href="#riwayat_order"><i class="icon-doc-text"></i>Pembayaran Nota</a></li>'),$("#menu_kiri").append('<li style="list-style:none"><a href="javascript:;" onclick="logout()"><i class="icon-power"></i>Logout</a></li>'),$("#menu_kiri").append('<li style="list-style:none"><a href="#kirim_pesan"><i class="icon-mail"></i>Kirim Pesan</a></li>')):($("#menu_kiri").append('<li style="list-style:none"><a href="#login"><i class="icon-lock"></i>Login</a></li>'),$("#menu_kiri").append('<li style="list-style:none"><a href="#daftar"><i class="icon-vcard"></i>Daftar</a></li>')),$("#menu_kiri").append('<li style="list-style:none"><a href="#kontak"><i class="icon-contacts"></i>Kontak Kami</a></li>'),$("#menu_kiri").append("</ul>"),$("#menu_kiri").append("<div>")}function menu_kanan(){$("#menu_kanan").html(""),$("#menu_kanan").append("<div>"),$("#menu_kanan").append("<h4>Menu Kanan</h4>"),$("#menu_kanan").append("<ul>"),$("#menu_kanan").append('<li style="list-style:none"><a href="#page+1"><i class="icon-pencil"></i>Cara Order</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#page+3"><i class="icon-lightbulb"></i>Info Reseller</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#rekening"><i class="icon-tags"></i>Info Rekening</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#cek_ongkir"><i class="icon-calculator"></i>Cek Ongkir</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#cekresi"><i class="icon-ticket"></i>Cek Resi</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#page+2"><i class="icon-star-filled"></i>Testimoni</a></li>'),$("#menu_kanan").append('<li style="list-style:none"><a href="#update"><i class="icon-upload-cloud"></i>Update</a></li>'),$("#menu_kanan").append("</ul>"),$("#menu_kanan").append("</div>")}function menu_tengah(){$("#menu_tengah").html(""),$("#menu_tengah").append('<li id="border"><a href="javascript:;" onclick="openmenu(\'left\');" id="open-left"><img src="image/menu.png"/></a></li>'),$("#menu_tengah").append('<li id="border"><a href="#kategori"><img src="image/produk.png"class="icon_produk"/></a></li>'),$("#menu_tengah").append('<li id="border"><a href="#informasi"><img src="image/info.png"class="icon_info"/></a></li>'),$("#menu_tengah").append('<li id="border"><a href="javascript:;" onclick="buka_keranjang()"><img src="image/keranjang.png"class="icon_keranjang"/></a></li>'),$("#menu_tengah").append('<li id="border" class="bordercari"><a href="javascript:;" onclick="buka_cari()"><img src="image/cari.png"class="icon_cari"/></a></li>'),$("#menu_tengah").append('<li id="border"><a href="javascript:;" onclick="openmenu(\'right\');" id="open-right"><img src="image/lainnya.png"/></a></li>')}function buka_halaman(n,e,i,a){var o=[n,e,i,a].filter(Boolean).join("+");location.hash=o,localStorage.setItem("lokasi",o);var t=cek_id_pelanggan();cek_notif("keranjang"),cek_notif("info"),cek_notif("produk"),cek_notif("pesan"),$("html, body").animate({scrollTop:10},"slow"),$.ajax({url:url+"/"+n+"?&token="+token+"&id_pelanggan="+t+"&prm_1="+e+"&prm_2="+i+"&prm_3="+a,beforeSend:function(){$("#loading").show()},success:function(a){snapper.close(),$("#isi").html(a),$(".bordercari").hide(),localStorage.setItem(o,Base64.encode(a)),"kategori"!=n&&"produk"!=n&&"all"!=n||$(".bordercari").show(),"informasi"==n&&isi_notif("info"),"produk"==n?daftar_produk(e,i):"riwayat_order"==n?buka_riwayat_order(t):"pesan"==n?buka_daftar_pesan(t):$("#loading").hide()},error:function(){1==confirm("Koneksi internet terganggu.. Muat ulang?")?buka_halaman(n,e,i,a):($("#loading").hide(),alert("Mode offline diaktifkan! \nHanya bisa melihat halaman yang pernah dibuka saja dan tidak bisa transaksi"),rute_off(),arah_off())},timeout:6e4})}function noimage(a){a.src="image/default.jpg"}function noimage2(a){a.src="image/default.jpg"}function daftar_produk(e,a){$("#loading").show();var n=new XMLHttpRequest;n.onreadystatechange=function(){if(4==n.readyState){var a=n.responseText;$("#result").html(a),$("#loading").hide()}},n.open("GET",url+"/act_produk?token="+token+"&id_pelanggan="+id_pelanggan+"&prm_1="+e),n.send();var i=a;$("#result").load(url+"/act_produk?token="+token+"&prm_1="+e+"&id_pelanggan="+id_pelanggan,{page:i,token:token},function(){$("#loading").hide()}),$("#result").on("click",".pagination a",function(a){a.preventDefault(),$("#loading").show();var n=$(this).attr("data-page");$("#result").load(url+"/act_produk?token="+token+"&prm_1="+e+"id_pelanggan="+id_pelanggan,{page:n,token:token},function(){window.location.href="#produk+"+e+"+"+n,$("#loading").hide()})})}function buka_riwayat_order(e){$("#loading").show();var n=new XMLHttpRequest;n.onreadystatechange=function(){if(4==n.readyState){var a=n.responseText;$("#result").html(a),$("#loading").hide()}},n.open("GET",url+"/act_riwayat_order?token="+token+"&id_pelanggan="+e),n.send(),$("#result").on("click",".pagination a",function(a){a.preventDefault(),$("#loading").show();var n=$(this).attr("data-page");$("#result").load(url+"/act_riwayat_order?token="+token+"&id_pelanggan="+e,{page:n,token:token},function(){$("#loading").hide()})})}function buka_daftar_pesan(e){$("#loading").show();var n=new XMLHttpRequest;n.onreadystatechange=function(){if(4==n.readyState){var a=n.responseText;$("#result").html(a),$("#loading").hide()}},n.open("GET",url+"/daftar_pesan?token="+token+"&id_pelanggan="+e),n.send(),$("#result").on("click",".pagination a",function(a){a.preventDefault(),$("#loading").show();var n=$(this).attr("data-page");$("#result").load(url+"/daftar_pesan?token="+token+"&id_pelanggan="+e,{page:n,token:token},function(){$("#loading").hide()})})}function convertToRupiah(a){for(var n="",e=a.toString().split("").reverse().join(""),i=0;i<e.length;i++)i%3==0&&(n+=e.substr(i,3)+".");return"Rp. "+n.split("",n.length-1).reverse().join("")}function cari_produk(a,n){$("#hasil_cari").html("<ul><li>Mencari produk...</ul></li>");var e=new XMLHttpRequest;e.onreadystatechange=function(){if(4==e.readyState){var a=e.responseText;document.getElementById("hasil_cari").innerHTML=a}},e.open("GET",url+"/cari_produk?key="+a+"&token="+token+"&id_kategori="+n),e.send()}function cek_notif(n){null!=id_pelanggan&&$.ajax({url:url+"/cek_notif?act="+n+"&token="+token+"&id_pelanggan="+id_pelanggan,success:function(a){"keranjang"==n?0<a?$(".icon_keranjang").attr("src","image/keranjang_2.png"):$(".icon_keranjang").attr("src","image/keranjang.png"):"info"==n?(isi_info=localStorage.getItem("isi_info"),a!=isi_info&&0!=a?$(".icon_info").attr("src","image/info_2.png"):$(".icon_info").attr("src","image/info.png")):"produk"==n?0<a?$(".icon_produk").attr("src","image/produk_2.png"):$(".icon_produk").attr("src","image/produk.png"):"pesan"==n&&(0<a?$(".icon_pesan").attr("src","image/pesan_2.png"):$(".icon_pesan").attr("src","image/pesan.png"))}})}function isi_notif(n){$.ajax({url:url+"/cek_notif?act="+n+"&token="+token+"&id_pelanggan="+id_pelanggan,success:function(a){"info"==n&&localStorage.setItem("isi_info",a)}})}function text_berjalan(){$.ajax({url:url+"/text_berjalan?&token="+token+"&id_pelanggan="+id_pelanggan,success:function(a){$(".text_berjalan").html(a)}})}function cek_versi(n){$.ajax({url:url+"/cek_versi?act="+n+"&token="+token+"&versi="+versi,beforeSend:function(){$("#loading").show()},success:function(a){if("update"==n)""==a?alert("Maaf belum ada update terbaru untuk aplikasi "+nama_aplikasi):window.open(a,"_system");else if("pesan"==n){if(""!=a)1==confirm("Sekarang sudah tersedia update untuk aplikasi "+nama_aplikasi+" versi terbaru, apakah akan update sekarang?")&&window.open(a,"_system")}$("#loading").hide()}})}function buka_keranjang(){var a=cek_id_pelanggan();""!=a&&a?buka_halaman("keranjang"):alert("Untuk membuka keranjang silahkan login atau daftar sebagai member kami.")}function buka_pesan(){var a=cek_id_pelanggan();""!=a&&a?buka_halaman("pesan"):alert("Untuk membuka pesan silahkan login atau daftar sebagai member kami.")}function cek_id_pelanggan(){return localStorage.getItem("id_pelanggan")}function buka_cari(){var a=document.getElementById("kotakcari");"none"!==a.style.display?a.style.display="none":(a.style.display="block",document.getElementById("kata_kunci").focus())}function cek_localstorage(){var a=localStorage.getItem("isi_info");""!=a&&a||localStorage.setItem("isi_info","0")}function louncher_app(a){window.open(a,"_blank","location=no,toolbar=no","closebuttoncaption=Return")}function download(i,o,t){$("#loading").show(),window.requestFileSystem(LocalFileSystem.PERSISTENT,0,function(a){var n=encodeURI(t+"download.php?img="+i);ext=n.substr(n.lastIndexOf(".")+1);var e=a.root.toURL();filetransfer(n,e=e+"/"+o+"/"+i,o)},function(a){alert(a.target.error.code)})}function filetransfer(a,n,e){(new FileTransfer).download(a,n,function(a){refreshMedia.refresh(n),alert("Gambar berhasil disimpan, ke direktori: '"+e+"'"),console.log("download complete: "+a.toURL()),$("#loading").hide()},function(a){alert("Penyimpanan gambar gagal: Error Code = "+a.code+" "+e),console.log("download error source "+a.source),console.log("download error target "+a.target),console.log("upload error code"+a.code),$("#loading").hide()},!1,{headers:{Authorization:"Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="}})}function onload(){document.addEventListener("deviceready",deviceReady,!1)}function deviceReady(){document.addEventListener("backbutton",backButtonCallback,!1)}function backButtonCallback(){for(var a=location.hash.split("#")[1],n=localStorage.getItem("lokasi").split(" "),e=0;e<n.length;e++)var i=n[e].split("+")[0];null!=a&&"kategori"!=a?localStorage.getItem("lokasi2")===localStorage.getItem("lokasi")||"produk"===i?null==document.getElementById("simple-popup")?buka_halaman("kategori"):$("div").remove("#simple-popup-backdrop, #simple-popup"):navigator.app.backHistory():null==document.getElementById("simple-popup")?navigator.notification.confirm("Keluar dari aplikasi?",confirmCallback,nama_aplikasi,"Ok,Cancel"):$("div").remove("#simple-popup-backdrop, #simple-popup")}function confirmCallback(a){return 1==a&&(localStorage.removeItem("lokasi"),navigator.app.exitApp(),!0)}function hidup(){isAndroid&&window.plugins.insomnia.keepAwake()}function localpush(){1==confirm("Mengaktifkan Notifikasi?")?(cordova.plugins.notification.local.schedule({text:"Halo sista, Selamat belanja ya!",icon:"file://image/logo.png",every:day}),cordova.plugins.notification.local.on("click",function(a){joinMeeting(a.data.meetingId)}),cordova.plugins.notification.local.getTriggered(function(a){alert("Terima kasih telah berkunjung, Anda akan menerima notifikasi. Selamat belanja!")})):cancelpush()}function cancelpush(){cordova.plugins.notification.local.cancelAll(function(){alert("Terima kasih telah berkunjung, Anda tidak akan menerima notifikasi lagi.")},this)}function pushnotif(){if(isAndroid&&null==document.getElementById("web")&&null===localStorage.getItem("regis")){var a=PushNotification.init({android:{senderID:"1084978366514"},ios:{alert:"true",badge:"true",sound:"true"},windows:{}});a.on("registration",function(a){localStorage.setItem("regis",a.registrationId)}),a.on("notification",function(a){-1!=a.title.search("Informasi")?buka_halaman("informasi"):buka_pesan()}),a.on("error",function(a){})}}function rute(){window.onload=function(){arah()},window.onhashchange=function(){arah()}}function arah(){switch(location.hash){case location.hash:var a=location.hash.split("#")[1];null==a?buka_halaman("kategori"):buka_halaman.apply(null,a.split("+"))}}function rute_off(){window.onload=function(){arah_off()},window.onhashchange=function(){arah_off()}}function arah_off(){switch(location.hash){case location.hash:if(!navigator.onLine){var a=location.hash.split("#")[1];null==a?$("#isi").html(Base64.decode(localStorage.getItem("kategori"))):$("#isi").html(Base64.decode(localStorage.getItem(a))),$("#loading").hide();break}location.reload(!0)}}function cek_akses(){var a=cek_id_pelanggan();""!=a&&a||buka_halaman("login")}$(document).ready(function(){onload(),$("#nama_aplikasi").html(nama_aplikasi),menu_kiri(),menu_kanan(),menu_tengah(),cek_localstorage(),rute(),arah(),cek_versi("pesan"),text_berjalan(),suntikCSS()}),$(function(){var n,e=["#F44336","#E91E63","#9C27B0","#3F51B5","#2196F3","#009688","#4CAF50","#FF5722","#795548","#9E9E9E","#000000"];$(".nama_app,#marquee,#judul_isi,.judul_isi").click(function(){for(var a;a=e[Math.floor(Math.random()*e.length)],n==a;);$("#layang").css("background-color",a),$("#marquee").css("background-color",a),$("#judul_isi,.judul_isi").css("background-color",a),$("sup").css("color",a),$(".bagian .bag-right a").css("color",a),n=a})})
+var versi="3";
+var url = "https://mutiaraonlineshop.com/app/";
+var url_admin = "https://mutiaraonlineshop.com/";
+var api_ongkir = "https://ongkir.tokojs.com/api_ongkir/";
+
+var token='6KB4J3xGZX';
+var nama_aplikasi='Mutiara Online Shop';
+var id_pelanggan=localStorage.getItem('id_pelanggan');
+
+var ua = navigator.userAgent.toLowerCase();
+var isAndroid = ua.indexOf("android") > -1; //&& ua.indexOf("mobile");
+
+$(document).ready(function() {onload();
+	$('#nama_aplikasi').html(nama_aplikasi);
+ 	menu_kiri();
+    menu_kanan();
+    menu_tengah();
+    cek_localstorage();
+    rute();arah();
+	cek_versi('pesan');
+    text_berjalan();
+    suntikCSS();                        
+});
+function suntikCSS(){
+var suntikCSS = document.createElement("style");
+suntikCSS.innerHTML = ".menu ul li{height:180px}#navbawah ul li a i{font-size:16px}#navbawah ul li a{font-size:11px}";
+document.head.appendChild(suntikCSS);
+}
+function logout() {
+    var a = confirm("Yakin akan keluar dari akun ini?");
+    if (a == true) {
+    	localStorage.removeItem('id_pelanggan');
+    	localStorage.removeItem('url_id_kategori');
+    	localStorage.removeItem('url_id_produk');
+        location.reload();
+    }
+}
+function menu_kiri() {
+	$("#menu_kiri").html('');
+    $("#menu_kiri").append("<div>");
+    $("#menu_kiri").append("<h4>Menu Kiri</h4>");
+    $("#menu_kiri").append("<ul>");
+    var id_pelanggan=localStorage.getItem('id_pelanggan');
+    if (id_pelanggan == "" || !id_pelanggan) {
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#login\"><i class=\"icon-lock\"></i>Login</a></li>");
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#daftar\"><i class=\"icon-vcard\"></i>Daftar</a></li>");
+    } else {
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#profile\"><i class=\"icon-user\"></i>Profile Anda</a></li>");
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#riwayat_order\"><i class=\"icon-doc-text\"></i>Pembayaran Nota</a></li>");
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#informasi\"><i class=\"icon-info\"></i>Informasi</a></li>");
+        $("#menu_kiri").append('<li style="list-style:none"><a href="javascript:;" onclick="logout()"><i class=\"icon-power\"></i>Logout</a></li>');
+        $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#kirim_pesan\"><i class=\"icon-mail\"></i>Kirim Pesan</a></li>");
+       //$("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#saldo\"><i class=\"icon-credit-card\"></i>Saldo</a></li>");
+   
+    }
+    $("#menu_kiri").append("<li style=\"list-style:none\"><a href=\"#kontak\"><i class=\"icon-contacts\"></i>Kontak Kami</a></li>");
+   // $("#menu_kiri").append('<li style="list-style:none"><a href="javascript:;">Beli Voucher</a></li>');
+    //$("#menu_kiri").append('<li style="list-style:none"><a href="javascript:;">Kode Promo</a></li>');
+    $("#menu_kiri").append("</ul>");
+    $("#menu_kiri").append("<div>")
+}
+function menu_kanan() {
+	$("#menu_kanan").html('');
+    $("#menu_kanan").append("<div>");
+    $("#menu_kanan").append("<h4>Menu Kanan</h4>");
+    $("#menu_kanan").append('<ul>');
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#page+1\"><i class=\"icon-pencil\"></i>Cara Order</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#page+3\"><i class=\"icon-lightbulb\"></i>Info Reseller</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#rekening\"><i class=\"icon-tags\"></i>Info Rekening</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#cek_ongkir\"><i class=\"icon-calculator\"></i>Cek Ongkir</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"javascript:;\" onclick=\"window.open('http://cekresi.com', '_blank', 'location=no');\" ><i class=\"icon-ticket\"></i>Cek Resi</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#page+2\"><i class=\"icon-star-filled\"></i>Testimoni</a></li>");
+    $("#menu_kanan").append("<li style=\"list-style:none\"><a href=\"#update\"><i class=\"icon-upload-cloud\"></i>Update</a></li>");
+    $("#menu_kanan").append("</ul>");
+    $("#menu_kanan").append("</div>")
+}
+function menu_tengah() {
+	$("#menu_tengah").html('');
+    $("#menu_tengah").append("<li id=\"border\"><a href=\"javascript:;\" onclick=\"openmenu('left');\" id=\"open-left\"><i class=\"icon-menu\"></i><br>Menu</a></li>");
+    $("#menu_tengah").append("<li id=\"border\"><a href=\"#kategori\"><i class=\"icon-picture\"></i><br>Produk</a></li>");
+    $("#menu_tengah").append("<li id=\"border\"><a href=\"javascript:;\" onclick=\"buka_keranjang()\"><i class=\"icon-basket\"></i><br>Troly</a></li>");
+    $("#menu_tengah").append("<li id=\"border\" class=\"bordercari\"><a href=\"javascript:;\" onclick=\"buka_cari()\"><i class=\"icon-search\"></i><br>Search</a></li>");
+    $("#menu_tengah").append("<li id=\"border\"><a href=\"#riwayat_order\"><i class=\"icon-doc-text\"></i><br>Nota</a></li>");
+    $("#menu_tengah").append("<li id=\"border\"><a href=\"javascript:;\" onclick=\"openmenu('right');\" id=\"open-right\"><i class=\"icon-th-list\"></i><br>Info</a></li>");
+}
+
+function buka_halaman(halaman,prm_1,prm_2,prm_3){
+
+var jejak = [halaman,prm_1,prm_2,prm_3];
+var jejax = jejak.filter(Boolean).join('+');
+location.hash = jejax;
+localStorage.setItem('lokasi',jejax);
+
+	var id_pelanggan=cek_id_pelanggan();
+	cek_notif('keranjang');cek_notif('info');cek_notif('produk');cek_notif('pesan');
+
+	$("html, body").animate({ scrollTop: 10 }, "slow");
+	$.ajax({url: url+'/'+halaman+'?&token='+token+'&id_pelanggan='+id_pelanggan+'&prm_1='+prm_1+'&prm_2='+prm_2+'&prm_3='+prm_3, 
+		beforeSend: function(){
+                       $("#loading").show();
+                   },
+		success: function(result){
+        		snapper.close();
+				$('#isi').html(result);$('.bordercari').hide();
+
+				localStorage.setItem(jejax,Base64.encode(result)); //simpan offline
+
+				if(halaman=='kategori' || halaman=='produk' || halaman=='all'){$('.bordercari').show();}
+
+				if(halaman=='informasi'){isi_notif('info')}
+
+				if(halaman=='produk'){daftar_produk(prm_1,prm_2);}
+          
+				else if(halaman=='riwayat_order'){buka_riwayat_order(id_pelanggan);}
+				else if(halaman=='pesan'){buka_daftar_pesan(id_pelanggan);}
+
+    			else{$('#loading').hide();}
+
+    		},
+
+    	error: function(){
+        		var tanya=confirm('Koneksi internet terganggu.. Muat ulang?');
+        		if(tanya==true){
+        			buka_halaman(halaman,prm_1,prm_2,prm_3);
+        		}
+        		else {$('#loading').hide(); alert("Mode offline diaktifkan! \nHanya bisa melihat halaman yang pernah dibuka saja dan tidak bisa transaksi");
+                      rute_off(); arah_off(); //ambil offline
+                     }
+        		
+    	},
+
+    	timeout: 60000
+
+})
+}
+function noimage(gbr){
+	gbr.src = "image/default.jpg";
+}
+function noimage2(gbr){
+	gbr.src = "image/default.jpg";
+}
+function daftar_produk(id_kategori,pagin){
+	$("#loading").show();
+	var xmlhttp= new XMLHttpRequest();
+	xmlhttp.onreadystatechange=
+	function(){if(xmlhttp.readyState==4){var hasil=xmlhttp.responseText;$('#result').html(hasil); $('#loading').hide();}}
+	xmlhttp.open("GET",url+"/act_produk?token="+token+"&id_pelanggan="+id_pelanggan+"&prm_1="+id_kategori);
+	xmlhttp.send();
+
+		var pagei = pagin;
+		$("#result").load(url+"/act_produk?token="+token+"&prm_1="+id_kategori+"&id_pelanggan="+id_pelanggan,{"page":pagei,"token":token}, 
+		function(){ $("#loading").hide();});	
+
+	$("#result").on( "click", ".pagination a", function (e){
+		e.preventDefault();
+		$("#loading").show();
+		var page = $(this).attr("data-page");
+
+		$("#result").load(url+"/act_produk?token="+token+"&prm_1="+id_kategori+"id_pelanggan="+id_pelanggan,{"page":page,"token":token}, function(){ window.location.href='#produk+'+id_kategori+'+'+page;
+			$("#loading").hide();
+		});
+		
+	});
+}
+
+function buka_riwayat_order(id_pelanggan){
+	$("#loading").show();
+	var xmlhttp= new XMLHttpRequest();
+	xmlhttp.onreadystatechange=
+	function(){if(xmlhttp.readyState==4){var hasil=xmlhttp.responseText;$('#result').html(hasil); $('#loading').hide();}}
+	xmlhttp.open("GET",url+"/act_riwayat_order?token="+token+"&id_pelanggan="+id_pelanggan);
+	xmlhttp.send();
+
+
+	$("#result").on( "click", ".pagination a", function (e){
+		e.preventDefault();
+		$("#loading").show();
+		var page = $(this).attr("data-page");
+		$("#result").load(url+"/act_riwayat_order?token="+token+"&id_pelanggan="+id_pelanggan,{"page":page,"token":token}, function(){ //get content from PHP page
+			$("#loading").hide();
+		});
+		
+	});
+}
+
+function buka_daftar_pesan(id_pelanggan){
+	$("#loading").show();
+	var xmlhttp= new XMLHttpRequest();
+	xmlhttp.onreadystatechange=
+	function(){if(xmlhttp.readyState==4){var hasil=xmlhttp.responseText;$('#result').html(hasil); $('#loading').hide();}}
+	xmlhttp.open("GET",url+"/daftar_pesan?token="+token+"&id_pelanggan="+id_pelanggan);
+	xmlhttp.send();
+
+
+	$("#result").on( "click", ".pagination a", function (e){
+		e.preventDefault();
+		$("#loading").show();
+		var page = $(this).attr("data-page");
+		$("#result").load(url+"/daftar_pesan?token="+token+"&id_pelanggan="+id_pelanggan,{"page":page,"token":token}, function(){ //get content from PHP page
+			$("#loading").hide();
+		});
+		
+	});
+}
+/*
+$(document).on('click', 'a', function (event) {
+	var link=$(this).attr('href');
+	if(link.search("#") != -1 || link.search("javascript:;") != -1){
+	}else{
+	    event.preventDefault();
+	    window.open($(this).attr('href'), '_system');}
+});
+*/
+function convertToRupiah(b) {
+    var a = "";
+    var d = b.toString().split("").reverse().join("");
+    for (var c = 0; c < d.length; c++) {
+        if (c % 3 == 0) {
+            a += d.substr(c, 3) + "."
+        }
+    }
+    return "Rp. "+a.split("", a.length - 1).reverse().join("")
+}
+
+function cari_produk(key,id_kategori){
+	$('#hasil_cari').html('<ul><li>Mencari produk...</ul></li>')
+	var xmlhttp= new XMLHttpRequest();
+	xmlhttp.onreadystatechange=
+	function(){if(xmlhttp.readyState==4){var hasil=xmlhttp.responseText;
+				document.getElementById('hasil_cari').innerHTML=hasil;
+		}
+	}
+	xmlhttp.open("GET",url+"/cari_produk?key="+key+"&token="+token+"&id_kategori="+id_kategori);
+	xmlhttp.send();
+}
+
+
+function cek_notif(act){
+if (id_pelanggan !=null){
+	$.ajax({url: url+'/cek_notif?act='+act+'&token='+token+'&id_pelanggan='+id_pelanggan,
+		success: function(result){
+        	if(act=='keranjang'){
+        		if(result>0){$(".icon_keranjang").attr("src","image/keranjang_2.png");}
+        		else {$(".icon_keranjang").attr("src","image/keranjang.png");}
+        	}         	
+        	else if(act=='info'){
+        		isi_info=localStorage.getItem('isi_info');
+        		if(result!=isi_info && result!=0){$(".icon_info").attr("src","image/info_2.png");}
+        		else {$(".icon_info").attr("src","image/info.png");}
+        	} 
+         	else if(act=='produk'){
+        		if(result>0){$(".icon_produk").attr("src","image/produk_2.png");}
+        		else {$(".icon_produk").attr("src","image/produk.png");}
+        	}else if(act=='pesan'){
+        		if(result>0){$(".icon_pesan").attr("src","image/pesan_2.png");}
+        		else {$(".icon_pesan").attr("src","image/pesan.png");}
+        	} 
+
+        },
+       });
+}}
+
+function isi_notif(act){
+	$.ajax({url: url+'/cek_notif?act='+act+'&token='+token+'&id_pelanggan='+id_pelanggan,
+		success: function(result){
+        	if(act=='info'){
+        		localStorage.setItem('isi_info',result);
+        	}
+        	},
+       });
+}
+
+function text_berjalan(){
+	$.ajax({url: url+'/text_berjalan?&token='+token+'&id_pelanggan='+id_pelanggan,
+		success: function(result){
+        		$('.text_berjalan').html(result);
+        	},
+       });
+}
+
+function cek_versi(act){
+	$.ajax({url: url+'/cek_versi?act='+act+'&token='+token+'&versi='+versi,
+		beforeSend: function(){
+           $("#loading").show();
+        },
+		success: function(result){
+				if(act=='update'){
+					if(result==""){
+						alert("Maaf belum ada update terbaru untuk aplikasi "+nama_aplikasi)
+					}else{
+						window.open(result,'_system');
+					}
+				}else if(act=='pesan'){
+					if(result!=""){
+						var x = confirm("Sekarang sudah tersedia update untuk aplikasi "+nama_aplikasi+" versi terbaru, apakah akan update sekarang?");
+						if(x==true){
+							window.open(result,'_system');
+						}
+					}
+				}
+				$("#loading").hide();
+        },
+       });
+}
+
+function buka_keranjang(){
+	var id_pelanggan=cek_id_pelanggan();
+	if (id_pelanggan == "" || !id_pelanggan) {alert('Untuk membuka keranjang silahkan login atau daftar sebagai member kami.'); }
+	else {buka_halaman('keranjang');}
+}
+
+function buka_pesan(){
+	var id_pelanggan=cek_id_pelanggan();
+	if (id_pelanggan == "" || !id_pelanggan) {alert('Untuk membuka pesan silahkan login atau daftar sebagai member kami.'); }
+	else {buka_halaman('pesan');}
+}
+
+function cek_id_pelanggan(){
+	var id_pelanggan=localStorage.getItem('id_pelanggan');
+	return id_pelanggan;
+}
+
+function buka_cari(){
+    var div = document.getElementById("kotakcari");
+    if (div.style.display !== "none") {
+        div.style.display = "none";
+    }
+    else {
+        div.style.display = "block";
+      document.getElementById("kata_kunci").focus();
+    }
+}
+
+function cek_localstorage(){
+
+	var isi_info=localStorage.getItem('isi_info');
+	if (isi_info == "" || !isi_info) {
+		localStorage.setItem('isi_info','0');
+	}
+
+}
+function louncher_app(link){window.open(link,'_blank','location=no,toolbar=no','closebuttoncaption=Return')}
+
+function download(file_img, Folder_Name, base_download_url) {
+//step to request a file system 
+	$("#loading").show();
+	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, fileSystemSuccess, fileSystemFail);
+
+	function fileSystemSuccess(fileSystem) {
+		var download_link = encodeURI(base_download_url+"download.php?img="+file_img);
+		ext = download_link.substr(download_link.lastIndexOf('.') + 1); //Get extension of URL
+/*
+		var directoryEntry = fileSystem.root; // to get root path of directory
+		directoryEntry.getDirectory(Folder_Name, { create: false, exclusive: false }, onDirectorySuccess, onDirectoryFail); // creating folder in sdcard
+		*/
+		var rootdir = fileSystem.root;
+
+		var fp = rootdir.toURL(); // atau "///storage/emulated/0/";  Returns Fulpath of local directory
+
+		fp = fp + "/" + Folder_Name + "/" + file_img; // fullpath and name of the file which we want to give
+		// download function call
+		filetransfer(download_link, fp,Folder_Name);
+	}
+
+	function onDirectorySuccess(parent) {
+		// Directory created successfuly
+	}
+
+	function onDirectoryFail(error) {
+		//Error while creating directory
+		alert("Unable to create new directory: " + error.code);
+	}
+
+	function fileSystemFail(evt) {
+		//Unable to access file system
+		alert(evt.target.error.code);
+	 }
+}
+
+function filetransfer(download_link, fp,Folder_Name) {
+var fileTransfer = new FileTransfer();
+// File download function with URL and local path
+
+fileTransfer.download(
+		download_link,
+		fp,
+		function(entry) {
+            refreshMedia.refresh(fp); // Refresh the image gallery
+			alert("Gambar berhasil disimpan, ke direktori: '"+Folder_Name+"'");
+			console.log("download complete: " + entry.toURL());
+			$("#loading").hide();
+			//cordova.InAppBrowser.open(fp, '_blank', 'location=yes');
+			
+		/*	cordova.plugins.fileOpener2.open(fp, 'image/jpeg', {
+        error : function(){alert('err'+fp) }, 
+        success : function(){alert('suc'+fp)} 
+            } );
+		*/	
+		},
+		function(error) {
+			alert("Penyimpanan gambar gagal: Error Code = " + error.code +" "+Folder_Name );
+			console.log("download error source " + error.source);
+			console.log("download error target " + error.target);
+			console.log("upload error code" + error.code);
+			$("#loading").hide();
+		},
+		false,
+		{
+			headers: {
+				"Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+			}
+		}
+	);
+}
+// END ALTERNATIVE //
+function onload() {
+            document.addEventListener('deviceready', deviceReady, false);
+        }
+
+        function deviceReady() {
+            document.addEventListener('backbutton', backButtonCallback, false);
+        }
+
+         function backButtonCallback() {
+		var rt = location.hash.split('#')[1];
+
+var str1 = localStorage.getItem('lokasi').split(' ');
+
+for (var i=0;i<str1.length;i++)
+{
+    var words = str1[i].split("+");
+    var hal = words[0];
+}
+
+		if (rt != null && rt != 'kategori'){
+			if (localStorage.getItem('lokasi2')===localStorage.getItem('lokasi') || hal==='produk'){if (document.getElementById('simple-popup') == null) {buka_halaman('kategori')}else{$("div").remove("#simple-popup-backdrop, #simple-popup");}
+        }
+			else{navigator.app.backHistory();}
+		}else{
+          if (document.getElementById('simple-popup') == null) {
+			navigator.notification.confirm('Keluar dari aplikasi?',confirmCallback,
+			nama_aplikasi,
+			'Ok,Cancel');}
+          else{$("div").remove("#simple-popup-backdrop, #simple-popup");}
+		}
+         }
+         function confirmCallback(buttonIndex) {
+            if(buttonIndex == 1) {localStorage.removeItem('lokasi');
+             navigator.app.exitApp();
+        return true;
+        }
+        else {
+        return false
+    }
+}
+
+function hidup(){
+if(isAndroid) {
+window.plugins.insomnia.keepAwake();}
+}
+function localpush(){
+var tanya=confirm('Mengaktifkan Notifikasi?');
+if(tanya==true){
+	cordova.plugins.notification.local.schedule({
+    text: "Halo sista, Selamat belanja ya!",
+    //sound: "file://sounds/alert.caf",
+    icon: "file://image/logo.png",
+    every: day
+});
+    cordova.plugins.notification.local.on("click", function (notification) {
+    joinMeeting(notification.data.meetingId);
+});
+    cordova.plugins.notification.local.getTriggered(function (notifications) {
+    //alert(notifications.length);
+	alert('Terima kasih telah berkunjung, Anda akan menerima notifikasi. Selamat belanja!');
+});
+}
+else {cancelpush();}
+}
+
+function cancelpush(){
+cordova.plugins.notification.local.cancelAll(function() {
+    alert('Terima kasih telah berkunjung, Anda tidak akan menerima notifikasi lagi.');
+}, this);
+}
+
+function pushnotif(){
+if(isAndroid) {
+if (document.getElementById('web') == null) {
+if (localStorage.getItem('regis') === null) {
+var push = PushNotification.init({
+    android: {
+        senderID: "1084978366514"
+    },
+    ios: {
+        alert: "true",
+        badge: "true",
+        sound: "true"
+    },
+    windows: {}
+});
+
+push.on('registration', function(data) {
+localStorage.setItem('regis',data.registrationId);
+});
+
+push.on('notification', function(data) {
+var a  = data.title;
+
+if(a.search("Informasi")!=-1){
+     buka_halaman('informasi'); 
+} else {
+     buka_pesan();
+}
+    // data.message,
+    // data.title,
+    // data.count,
+    // data.sound,
+    // data.image,
+    // data.additionalData
+});
+
+push.on('error', function(e) {
+    // e.message
+});
+}
+}
+}
+}
+
+function rute(){
+window.onload = function(){arah();}
+window.onhashchange = function(){arah();}
+}
+function arah(){
+  switch(location.hash) {
+    case location.hash:
+	var rt = location.hash.split('#')[1];
+	if (rt == null){buka_halaman('kategori')}
+	else{
+      buka_halaman.apply(null,rt.split("+"));
+	  }
+    break;
+  }
+}
+
+$(function() {
+
+  var colors = ['#F44336','#E91E63','#9C27B0','#3F51B5','#2196F3','#009688','#4CAF50','#FF5722','#795548','#9E9E9E','#000000'],
+    color;
+
+  $('.nama_app,#marquee,#judul_isi,.judul_isi').click(function() {
+    var randColor;
+    do {
+      randColor = colors[Math.floor(Math.random() * colors.length)];
+    } while (color == randColor);
+    $('#layang').css('background-color', randColor);
+    $('#marquee').css('background-color', randColor);
+    $('#judul_isi,.judul_isi').css('background-color', randColor);
+    $('sup').css('color', randColor);
+    $('.bagian .bag-right a').css('color', randColor);
+    color = randColor;
+  });
+});
+
+function rute_off(){
+window.onload = function(){arah_off();}
+window.onhashchange = function(){arah_off();}
+}
+function arah_off(){
+  switch(location.hash) {
+    case location.hash:
+	if(navigator.onLine){location.reload(true);}
+	else {
+	var rt = location.hash.split('#')[1];
+	if (rt == null){$('#isi').html(Base64.decode(localStorage.getItem('kategori')));$('#loading').hide();}
+	else{
+      $('#isi').html(Base64.decode(localStorage.getItem(rt)));$('#loading').hide();
+	  }
+    break;
+	}
+  }
+}
+
+function cek_akses(){
+	var id_pelanggan=cek_id_pelanggan();
+	if (id_pelanggan == "" || !id_pelanggan) {buka_halaman('login')}
+	else {}
+}
