@@ -385,7 +385,12 @@ fileTransfer.download(
 		download_link,
 		fp,
 		function(entry) {
-            refreshMedia.refresh(fp); // Refresh the image gallery
+          window.galleryRefresh.refresh(
+            entry.toURL(),
+            function(success){ console.log(success); },
+            function(error){ console.log(error); }
+          );
+           // refreshMedia.refresh(fp); // Refresh the image gallery
 			alert("Gambar berhasil disimpan, ke direktori: '"+Folder_Name+"'");
 			console.log("download complete: " + entry.toURL());
 			$("#loading").hide();
